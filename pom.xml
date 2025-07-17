@@ -1,0 +1,186 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.example</groupId>
+  <artifactId>Project_Management_Platform</artifactId>
+  <packaging>war</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>Project_Management_Platform Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <!-- Core Spring Dependencies -->
+    <!-- Các dependency cơ bản của Spring MVC và Spring Context -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>6.2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>6.2.6</version>
+    </dependency>
+
+    <!-- Spring ORM (tích hợp Hibernate với Spring) -->
+    <!-- Dùng để tích hợp ORM (Object-Relational Mapping), thường sử dụng với Hibernate. Dùng để quản lý kết nối và giao tiếp với cơ sở dữ liệu thông qua Hibernate. -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <version>6.2.6</version>
+    </dependency>
+
+    <!-- Hibernate Core ORM -->
+    <!-- Cung cấp các chức năng ORM của Hibernate, cho phép ánh xạ giữa đối tượng Java và cơ sở dữ liệu. -->
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>6.6.12.Final</version>
+    </dependency>
+
+    <!-- JDBC Driver cho SQL Server -->
+    <!-- Cung cấp driver JDBC để kết nối ứng dụng với cơ sở dữ liệu SQL Server. -->
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>12.6.1.jre11</version>
+    </dependency>
+
+    <!-- Jackson (REST API: JSON ↔ Java Object) -->
+    <!-- Dùng để chuyển đổi giữa JSON và các đối tượng Java, thường sử dụng trong các RESTful API. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.19.0</version>
+    </dependency>
+
+    <!-- Jakarta Servlet API -->
+    <!-- Cung cấp các API để làm việc với servlet (cơ sở của Spring MVC). Vì Tomcat cung cấp nó nên scope=provided. -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Jakarta Transaction API -->
+    <!-- Cung cấp các API để quản lý transaction trong ứng dụng (sử dụng với @Transactional). -->
+    <dependency>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <!-- Lombok (tạo tự động getter/setter, constructor...) -->
+    <!-- Giúp tự động tạo getter, setter, constructor, v.v... giảm bớt code boilerplate. -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.38</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Thymeleaf (Template Engine cho Spring MVC) -->
+    <!-- Thymeleaf là engine template cho các trang HTML, tích hợp với Spring MVC để hiển thị giao diện. -->
+    <dependency>
+      <groupId>org.thymeleaf</groupId>
+      <artifactId>thymeleaf</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.thymeleaf</groupId>
+      <artifactId>thymeleaf-spring6</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+
+    <!-- Spring Mail (JavaMailSender) -->
+    <!-- Cung cấp các chức năng hỗ trợ gửi email trong ứng dụng. -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <version>6.2.6</version>
+    </dependency>
+
+    <!-- Jakarta Mail (Mail API) -->
+    <!-- Cung cấp các API để làm việc với email trong ứng dụng. -->
+    <dependency>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>2.1.3</version>
+    </dependency>
+
+    <!-- Jakarta Mail (Implementation cho Mail API) -->
+    <!-- Là implementation của Jakarta Mail API. -->
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <!-- Jackson Datatype cho Java 8 date/time -->
+    <!-- Cung cấp các module hỗ trợ chuyển đổi giữa JSON và các kiểu dữ liệu Java 8, đặc biệt là LocalDate, LocalDateTime. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>2.18.2</version>
+    </dependency>
+
+    <!-- Validate -->
+    <!-- Các dependency liên quan đến validate trong Spring -->
+
+    <!-- Jakarta Validation API -->
+    <!-- Cung cấp các annotation như @NotBlank, @Valid, Validator, v.v... Đây là API chuẩn, không có logic để thực thi. -->
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.1.1</version>
+    </dependency>
+
+    <!-- Hibernate Validator -->
+    <!-- Là implementation thực thi các annotation validate như @NotBlank, @Email, @Size, v.v... -->
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>8.0.1.Final</version>
+    </dependency>
+
+    <!-- Hibernate Validator CDI -->
+    <!-- Hỗ trợ CDI cho Hibernate Validator. -->
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator-cdi</artifactId>
+      <version>8.0.1.Final</version>
+    </dependency>
+
+    <!-- Spring Security Core -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+      <version>6.2.0</version> <!-- Chọn version phù hợp với Spring bạn dùng -->
+    </dependency>
+
+    <!-- Spring Security Web -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>6.2.0</version>
+    </dependency>
+
+    <!-- Spring Security Config -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+      <version>6.2.0</version>
+    </dependency>
+
+    <!-- Password Encoder (BCrypt) -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-crypto</artifactId>
+      <version>6.2.0</version>
+    </dependency>
+
+  </dependencies>
+  <build>
+    <finalName>Project_Management_Platform</finalName>
+  </build>
+</project>
