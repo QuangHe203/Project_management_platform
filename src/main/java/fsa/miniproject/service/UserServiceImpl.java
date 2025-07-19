@@ -58,4 +58,28 @@ public class UserServiceImpl implements UserService {
         return users;
 
     }
+
+    @Override
+    public List<User> findUsersByTeamId(Integer teamId) {
+        List<User> membersInSameTeam = userDao.findUsersByTeamId(teamId);
+        membersInSameTeam.sort((u1, u2) -> {
+            int roleCompare = Integer.compare(
+                    u1.getRole() == RoleEnum.ROLE_MANAGER ? 0 : 1,
+                    u2.getRole() == RoleEnum.ROLE_MANAGER ? 0 : 1
+            );
+            if (roleCompare != 0) return roleCompare;
+            return u1.getName().compareToIgnoreCase(u2.getName());
+        });
+        return membersInSameTeam;
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userDao.findByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findById(Integer id) {
+        return userDao.findById(id);
+    }
 }

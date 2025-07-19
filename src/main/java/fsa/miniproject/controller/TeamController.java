@@ -26,7 +26,7 @@ public class TeamController {
     }
 
     @PostMapping("/members/add")
-    public String addMemberToTeam(@RequestParam Integer userId, Model model) {
+    public String addMemberToTeam(@RequestParam(value = "userId") Integer userId, Model model) {
         CustomUserDetails loggedInUser = (CustomUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
         Integer teamId = loggedInUser.getTeamId();
@@ -39,7 +39,7 @@ public class TeamController {
     }
 
     @PostMapping("/members/remove")
-    public String removeMemberFromTeam(@RequestParam Integer userId, Model model) {
+    public String removeMemberFromTeam(@RequestParam(value = "userId") Integer userId, Model model) {
         CustomUserDetails loggedInUser = (CustomUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
         Integer teamId = loggedInUser.getTeamId();

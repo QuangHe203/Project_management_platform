@@ -32,46 +32,81 @@
     <a th:href="@{/logout}" class="btn btn-danger logout-btn">Đăng xuất</a>
 
     <div class="row">
+
+        <!-- Phần quản lý tác vụ -->
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">Quản lý tác vụ</div>
+                <div class="card-header">
+                    Quản lý tác vụ
+                </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary mb-3">Tạo tác vụ mới</button>
-                    
-                    <div th:if="${tasks == null or tasks.isEmpty()}">
-                        <p class="text-muted">Hiện chưa có tác vụ nào.</p>
-                    </div>
-                    
-                    <div th:if="${tasks != null and !tasks.isEmpty()}">
-                        <div th:each="task : ${tasks}" class="card mb-2">
-                            <div class="card-body">
-                                <h5 th:text="${task.title ?: 'Không có tiêu đề'}">Tiêu đề</h5>
-                                <p th:text="${task.content ?: 'Không có nội dung'}">Nội dung</p>
-                                <small th:text="${task.status ?: 'Không có trạng thái'}">Trạng thái</small>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#taskModal" id="openTaskModal">
+                        Tạo tác vụ mới
+                    </button>
+                    <div id="taskList">
+                        <!-- Danh sách tác vụ sẽ được thêm vào đây -->
+                        <div th:if="${tasks == null or tasks.isEmpty()}">
+                            <p class="text-muted">Hiện chưa có tác vụ nào.</p>
+                        </div>
+
+                        <div th:if="${tasks != null and !tasks.isEmpty()}">
+                            <div th:each="task : ${tasks}" class="task-item mb-3">
+                                <h5 th:text="${task.title}"></h5>
+                                <p><small class="text-muted" th:text="'Nội dung: ' + ${task.content}"></small></p>
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="far fa-calendar-alt me-1"></i>
+                                        <span th:text="${task.startDate} + ' - ' + ${task.endDate}"></span>
+                                    </span>
+                                    <span><i class="fas fa-user me-1"></i>
+                                        <span th:text="${task.assignee.name}"></span>
+                                    </span>
+                                    <form th:action="@{/updateTaskStatus}" method="post">
+                                        <input type="hidden" name="taskId" th:value="${task.id}">
+                                        <select name="status" onchange="this.form.submit()">
+                                            <option value="TODO" th:selected="${task.status == 'TODO'}">Cần làm</option>
+                                            <option value="IN_PROGRESS" th:selected="${task.status == 'IN_PROGRESS'}">Đang thực hiện</option>
+                                            <option value="DONE" th:selected="${task.status == 'DONE'}">Hoàn thành</option>
+                                        </select>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
+        <!--Phần quản lý nhóm-->
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">Quản lý nhóm</div>
+                <div class="card-header">
+                    <i class="fas fa-users me-2"></i>Quản lý nhóm
+                </div>
                 <div class="card-body">
-                    <button class="btn btn-primary mb-3">Thêm thành viên</button>
-                    
-                    <div th:if="${users == null or users.isEmpty()}">
-                        <p class="text-muted">Hiện chưa có thành viên nào.</p>
-                    </div>
-                    
-                    <div th:if="${users != null and !users.isEmpty()}">
-                        <ul class="list-group">
-                            <li th:each="member : ${users}" class="list-group-item d-flex justify-content-between align-items-center">
-                                <span th:text="${member.username ?: 'Không có tên'}">Tên thành viên</span>
-                                <button type="button" class="btn btn-sm btn-danger">Xóa</button>
-                            </li>
-                        </ul>
+                    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#memberModal" id="openMemberModal">
+                        <i class="fas fa-plus me-2"></i>Thêm thành viên
+                    </button>
+                    <div id="memberList">
+                        <div th:if="${membersInSameTeam == null or membersInSameTeam.isEmpty()}">
+                            <p class="text-muted">Hiện chưa có thành viên nào.</p>
+                        </div>
+                        <div th:if="${membersInSameTeam != null and !membersInSameTeam.isEmpty()}">
+                            <ul class="list-group">
+                                <li th:each="member : ${membersInSameTeam}" class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span th:text="${member.name}">Tên thành viên</span>
+
+                                    <div class="d-flex align-items-center">
+                                       <span th:class="${#strings.trim(member.role) == 'ROLE_MANAGER' ? 'badge bg-success me-2' : 'badge bg-warning me-2'}"
+                                             th:text="${#strings.trim(member.role) == 'ROLE_MANAGER' ? 'MANAGER' : 'MEMBER'}"></span>
+
+
+                                        <form th:action="@{/teams/members/remove}" method="post" th:if="${#strings.trim(member.role) != 'ROLE_MANAGER'}">
+                                            <input type="hidden" name="userId" th:value="${member.accountId}">
+                                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                        </form>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -124,6 +159,83 @@
     </div>
 </div>
 
+<!-- Modal tạo tác vụ -->
+<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalLabel">Tạo tác vụ mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm" th:action="@{/addTask}" th:object="${task}" th:method="post">
+                    <input type="hidden" th:field="*{status}" th:value="'TODO'" />
+                    <div class="mb-3">
+                        <label for="taskTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="taskTitle" th:field="*{title}" required>
+                        <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskContent" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="taskContent" th:field="*{content}" rows="3" required></textarea>
+                        <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="text-danger"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" id="startDate" th:field="*{startDate}" required>
+                            <div th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label">Ngày kết thúc</label>
+                            <input type="date" class="form-control" id="endDate" th:field="*{endDate}" required>
+                            <div th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="text-danger"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assignee" class="form-label">Người thực hiện</label>
+                        <select class="form-select" id="assignee" th:field="*{assignee}" required>
+                            <option value="" selected disabled>Chọn người thực hiện</option>
+                            <option th:each="user : ${membersInSameTeam}" th:value="${user.accountId}" th:text="${user.name}"></option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('assignee')}" th:errors="*{assignee}" class="text-danger"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeTaskModal">Đóng</button>
+                        <button type="submit" form="taskForm" class="btn btn-primary">Lưu tác vụ</button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm thành viên -->
+<div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="memberModalLabel">Thêm thành viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="memberForm" th:action="@{/teams/members/add}" th:method="post">
+                    <div class="mb-3">
+                        <label for="memberId" class="form-label">User ID</label>
+                        <input type="number" class="form-control" id="memberId" name="userId" required>
+                        <div id="memberIdError" class="text-danger"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeMemberModal">Đóng</button>
+                <button type="submit" form="memberForm" class="btn btn-primary">Thêm thành viên</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

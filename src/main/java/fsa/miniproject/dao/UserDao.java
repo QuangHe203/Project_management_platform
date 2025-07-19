@@ -12,4 +12,5 @@ public interface UserDao {
     Optional<User> findByEmail(String email);
     List<User> findUserByRole(RoleEnum role);
     Optional<User> findById(Integer id);
+    List<User> findUsersByTeamId(Integer teamId);
 }

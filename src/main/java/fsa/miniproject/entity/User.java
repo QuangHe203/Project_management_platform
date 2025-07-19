@@ -26,7 +26,7 @@ public class User {
     private String email;
     private String password;
 
-    @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Task> tasks;
 
     @ManyToOne

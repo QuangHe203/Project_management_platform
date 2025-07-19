@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 @Data
@@ -27,10 +28,10 @@ public class Task {
     private TaskStatusEnum status;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @ManyToOne
     @JoinColumn(name = "project_id")

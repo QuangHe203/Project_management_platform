@@ -46,7 +46,6 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/login", "/register", "/resources/**").permitAll()
                 .requestMatchers("/dashboard_manager/**").hasAuthority("ROLE_MANAGER")
-                .requestMatchers("/dashboard_admin/**").hasAuthority("ROLE_ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin(form -> form

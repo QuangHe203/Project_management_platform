@@ -41,6 +41,7 @@ public class TeamServiceImpl implements TeamService {
 
 
     @Override
+    @Transactional
     public boolean removeMember(Integer teamId, Integer userId) {
         Team team = teamDao.findById(teamId).orElseThrow(() -> new IllegalArgumentException("Team not found"));
         User user = userDao.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));

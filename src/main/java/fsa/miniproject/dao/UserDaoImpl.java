@@ -65,4 +65,12 @@ public class UserDaoImpl implements UserDao {
             return Optional.empty();
         }
     }
+
+    @Override
+    public List<User> findUsersByTeamId(Integer teamId) {
+        String jpql = "FROM User u WHERE u.team.teamId = :teamId";
+        return entityManager.createQuery(jpql, User.class)
+                .setParameter("teamId", teamId)
+                .getResultList();
+    }
 }

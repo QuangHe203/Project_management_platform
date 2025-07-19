@@ -13,7 +13,6 @@ import java.util.Collections;
 @Service("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
 
-
     private final UserDao userDao;
 
     @Autowired
