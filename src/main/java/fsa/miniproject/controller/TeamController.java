@@ -1,8 +1,9 @@
 package fsa.miniproject.controller;
 
-import fsa.miniproject.dto.UserDto;
+import fsa.miniproject.dto.TeamUserDto;
 import fsa.miniproject.service.CustomUserDetails;
 import fsa.miniproject.service.TeamService;
+import fsa.miniproject.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,9 +21,11 @@ import java.util.List;
 public class TeamController {
 
     private final TeamService teamService;
+    private final UserService userService;
 
-    public TeamController(TeamService teamService) {
+    public TeamController(TeamService teamService, UserService userService) {
         this.teamService = teamService;
+        this.userService = userService;
     }
 
     @PostMapping("/members/add")
@@ -61,7 +64,7 @@ public class TeamController {
                 model.addAttribute("error", "Người dùng không thuộc nhóm nào.");
                 return "dashboard_manager";
             }
-            List<UserDto> teamMembers = teamService.getMembers(teamId);
+            List<TeamUserDto> teamMembers = userService.findUsersByTeamId(teamId);
             model.addAttribute("users", teamMembers);
             return "dashboard_manager";
         } catch (Exception e) {

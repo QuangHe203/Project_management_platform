@@ -16,6 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class Task {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer taskId;
 
     @Column(columnDefinition = "NVARCHAR(255)")
@@ -33,17 +34,17 @@ public class Task {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+//    @ManyToOne
+//    @JoinColumn(name = "project_id")
+//    private Project project;
 
     @ManyToOne
     @JoinColumn(name = "user_id")  // Tên cột của khóa ngoại đến bảng "users"
     private User assignee;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    private Set<Comment> comments;
-
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    private Set<File> files;
+//    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+//    private Set<Comment> comments;
+//
+//    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+//    private Set<File> files;
 }

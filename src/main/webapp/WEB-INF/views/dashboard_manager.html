@@ -52,16 +52,24 @@
                         <div th:if="${tasks != null and !tasks.isEmpty()}">
                             <div th:each="task : ${tasks}" class="task-item mb-3">
                                 <h5 th:text="${task.title}"></h5>
+                                <form th:action="@{/deleteTask}" method="post" th:object="${task}">
+                                    <input type="hidden" name="taskId" th:value="${task.taskId}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xoá tác vụ này?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                                 <p><small class="text-muted" th:text="'Nội dung: ' + ${task.content}"></small></p>
                                 <div class="d-flex justify-content-between">
                                     <span><i class="far fa-calendar-alt me-1"></i>
                                         <span th:text="${task.startDate} + ' - ' + ${task.endDate}"></span>
                                     </span>
-                                    <span><i class="fas fa-user me-1"></i>
-                                        <span th:text="${task.assignee.name}"></span>
+                                    <span>
+                                        <i class="fas fa-user me-1"></i>
+                                        <span th:if="${task.assignee != null and #strings.trim(task.assignee.role) == 'ROLE_MEMBER'}" th:text="${task.assignee.name}"></span>
+                                        <span th:if="${task.assignee != null and #strings.trim(task.assignee.role) == 'ROLE_MANAGER'}" class="text-danger">Chưa có người thực hiện</span>
                                     </span>
                                     <form th:action="@{/updateTaskStatus}" method="post">
-                                        <input type="hidden" name="taskId" th:value="${task.id}">
+                                        <input type="hidden" name="taskId" th:value="${task.taskId}">
                                         <select name="status" onchange="this.form.submit()">
                                             <option value="TODO" th:selected="${task.status == 'TODO'}">Cần làm</option>
                                             <option value="IN_PROGRESS" th:selected="${task.status == 'IN_PROGRESS'}">Đang thực hiện</option>
@@ -86,12 +94,12 @@
                         <i class="fas fa-plus me-2"></i>Thêm thành viên
                     </button>
                     <div id="memberList">
-                        <div th:if="${membersInSameTeam == null or membersInSameTeam.isEmpty()}">
+                        <div th:if="${usersInSameTeam == null or usersInSameTeam.isEmpty()}">
                             <p class="text-muted">Hiện chưa có thành viên nào.</p>
                         </div>
-                        <div th:if="${membersInSameTeam != null and !membersInSameTeam.isEmpty()}">
+                        <div th:if="${usersInSameTeam != null and !usersInSameTeam.isEmpty()}">
                             <ul class="list-group">
-                                <li th:each="member : ${membersInSameTeam}" class="list-group-item d-flex justify-content-between align-items-center">
+                                <li th:each="member : ${usersInSameTeam}" class="list-group-item d-flex justify-content-between align-items-center">
                                     <span th:text="${member.name}">Tên thành viên</span>
 
                                     <div class="d-flex align-items-center">
@@ -119,10 +127,11 @@
                 <div class="card-header">Kanban Board</div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
-                            <h5>Cần làm</h5>
+                        <!-- BACKLOG -->
+                        <div class="col-md-3">
+                            <h5>Backlog</h5>
                             <div th:if="${tasks != null}">
-                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status == 'TODO'}" class="card mb-2">
+                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'BACKLOG'}" class="card mb-2">
                                     <div class="card-body">
                                         <h6 th:text="${task.title}">Tiêu đề</h6>
                                         <p th:text="${task.content}">Nội dung</p>
@@ -130,10 +139,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <h5>Đang thực hiện</h5>
+
+                        <!-- DOING -->
+                        <div class="col-md-3">
+                            <h5>Doing</h5>
                             <div th:if="${tasks != null}">
-                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status == 'IN_PROGRESS'}" class="card mb-2">
+                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'DOING'}" class="card mb-2">
                                     <div class="card-body">
                                         <h6 th:text="${task.title}">Tiêu đề</h6>
                                         <p th:text="${task.content}">Nội dung</p>
@@ -141,10 +152,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <h5>Hoàn thành</h5>
+
+                        <!-- REVIEW -->
+                        <div class="col-md-3">
+                            <h5>Review</h5>
                             <div th:if="${tasks != null}">
-                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status == 'DONE'}" class="card mb-2">
+                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'REVIEW'}" class="card mb-2">
                                     <div class="card-body">
                                         <h6 th:text="${task.title}">Tiêu đề</h6>
                                         <p th:text="${task.content}">Nội dung</p>
@@ -152,11 +165,25 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+
+                        <!-- DONE -->
+                        <div class="col-md-3">
+                            <h5>Done</h5>
+                            <div th:if="${tasks != null}">
+                                <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'DONE'}" class="card mb-2">
+                                    <div class="card-body">
+                                        <h6 th:text="${task.title}">Tiêu đề</h6>
+                                        <p th:text="${task.content}">Nội dung</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- .row -->
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 
 <!-- Modal tạo tác vụ -->
@@ -169,7 +196,7 @@
             </div>
             <div class="modal-body">
                 <form id="taskForm" th:action="@{/addTask}" th:object="${task}" th:method="post">
-                    <input type="hidden" th:field="*{status}" th:value="'TODO'" />
+                    <input type="hidden" name="status" value="BACKLOG" />
                     <div class="mb-3">
                         <label for="taskTitle" class="form-label">Tiêu đề</label>
                         <input type="text" class="form-control" id="taskTitle" th:field="*{title}" required>
@@ -194,9 +221,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="assignee" class="form-label">Người thực hiện</label>
-                        <select class="form-select" id="assignee" th:field="*{assignee}" required>
-                            <option value="" selected disabled>Chọn người thực hiện</option>
-                            <option th:each="user : ${membersInSameTeam}" th:value="${user.accountId}" th:text="${user.name}"></option>
+                        <select class="form-select" id="assignee" th:field="*{assignee}">
+                            <option th:each="user : ${usersInSameTeam}"
+                                    th:value="${user.accountId}"
+                                    th:text="${#strings.trim(user.role) == 'ROLE_MEMBER' ? user.name : 'Chưa có người thực hiện'}">
+                            </option>
                         </select>
                         <div th:if="${#fields.hasErrors('assignee')}" th:errors="*{assignee}" class="text-danger"></div>
                     </div>

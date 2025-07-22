@@ -19,7 +19,7 @@ public class RegisterUserDto {
     @Size(min = 8, message = "Password have 8 character at least")
     private String password;
 
-    private RoleEnum role = RoleEnum.ROLE_MEMBER; // mặc định là thành viên
+    private RoleEnum role; // mặc định là thành viên
 
     // getters & setters
 }

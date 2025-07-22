@@ -10,4 +10,7 @@ public interface TaskDao {
     List<Task> findAll();
     Optional<Task> findById(Integer id);
     List<Task> findByStatus(String status);
+    List<Task> findAllWithDetails();
+    List<Task> findByStatusWithDetails(String status);
+    List<Task> findByTeamId(Integer teamId);
 }

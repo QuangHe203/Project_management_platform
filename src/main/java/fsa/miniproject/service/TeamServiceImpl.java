@@ -2,14 +2,10 @@ package fsa.miniproject.service;
 
 import fsa.miniproject.dao.TeamDao;
 import fsa.miniproject.dao.UserDao;
-import fsa.miniproject.dto.UserDto;
 import fsa.miniproject.entity.Team;
 import fsa.miniproject.entity.User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TeamServiceImpl implements TeamService {
@@ -53,17 +49,5 @@ public class TeamServiceImpl implements TeamService {
         user.setTeam(null);
         teamDao.save(team); // Cập nhật ở team
         return true;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UserDto> getMembers(Integer teamId) {
-        Team team = teamDao.findById(teamId).orElseThrow(() -> new IllegalArgumentException("Team not found"));
-
-        List<User> members = team.getMembers();
-
-        return members.stream()
-                .map(member -> new UserDto(member.getAccountId(), member.getName(), member.getEmail()))
-                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,6 @@
 package fsa.miniproject.service;
 
-import fsa.miniproject.entity.Team;
-import fsa.miniproject.entity.User;
+import fsa.miniproject.dto.DetailUserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,15 +9,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
-    private final User user;
+    private final DetailUserDto user;
 
-    public CustomUserDetails(User user) {
+    public CustomUserDetails(DetailUserDto user) {
         this.user = user;
-    }
-
-    public Integer getTeamId() {
-        Team team = user.getTeam(); // You may need to handle cases where the user is not in a team (null check).
-        return team != null ? team.getTeamId() : null;
     }
 
     public Integer getAccountId() {
@@ -27,6 +21,10 @@ public class CustomUserDetails implements UserDetails {
 
     public String getFullName() {
         return user.getName();
+    }
+
+    public Integer getTeamId() {
+        return user.getTeamId();
     }
 
     @Override

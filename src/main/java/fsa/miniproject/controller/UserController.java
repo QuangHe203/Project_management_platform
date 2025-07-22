@@ -1,9 +1,11 @@
 package fsa.miniproject.controller;
 
+import fsa.miniproject.dto.MemberUserDto;
 import fsa.miniproject.dto.RegisterUserDto;
+import fsa.miniproject.dto.DetailUserDto;
+import fsa.miniproject.dto.TeamUserDto;
 import fsa.miniproject.entity.RoleEnum;
 import fsa.miniproject.entity.Task;
-import fsa.miniproject.entity.User;
 import fsa.miniproject.service.TaskService;
 import fsa.miniproject.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -82,55 +84,56 @@ public class UserController {
         }
 
         try {
-            // Kiểm tra service có null không
             if (taskService == null) {
                 System.out.println("TaskService is null!");
                 model.addAttribute("error", "TaskService không được khởi tạo");
                 return "error";
             }
-
             if (userService == null) {
                 System.out.println("UserService is null!");
                 model.addAttribute("error", "UserService không được khởi tạo");
                 return "error";
             }
-
-            // Lấy thông tin người dùng hiện tại
             String username = auth.getName();
-            Optional<User> currentUser = userService.findByEmail(username); // Giả sử có phương thức này trong userService
-
+            Optional<DetailUserDto> currentUser = userService.findDetailByEmail(username);
             if (!currentUser.isPresent()) {
                 model.addAttribute("error", "Không tìm thấy thông tin người dùng");
                 return "error";
             }
+            Integer teamId = currentUser.get().getTeamId() != null ? currentUser.get().getTeamId() : null;
+            if (teamId == null) {
+                model.addAttribute("error", "Bạn chưa thuộc nhóm nào");
+                model.addAttribute("tasks", new ArrayList<>());
+                model.addAttribute("usersInSameTeam", new ArrayList<>());
+                model.addAttribute("allUsersMembers", new ArrayList<>());
+                model.addAttribute("task", new Task());
+                model.addAttribute("username", username);
+                return "dashboard_manager";
+            }
+            // Lấy danh sách task của team hiện tại
+            List<Task> tasks = taskService.getTasksByTeamId(teamId);
+            // Lấy danh sách user của team hiện tại
+            List<TeamUserDto> usersInSameTeam = userService.findUsersByTeamId(teamId);
+            for (TeamUserDto user : usersInSameTeam) {
+                System.out.println("User in team: " + user.getName() + ", Email: " + user.getEmail());
+            }
+            // Lấy danh sách user có vai trò là member
+            List<MemberUserDto> allUsersMembers = userService.findUsersByRole(RoleEnum.ROLE_MEMBER);
 
-            Integer teamId = currentUser.get().getTeam().getTeamId(); // Giả sử người dùng có thuộc tính teamId
-
-            /* Lấy tất cả task */
-            List<Task> tasks = taskService.getAllTasks();
-            System.out.println("Tasks loaded: " + (tasks != null ? tasks.size() : "null"));
-
-            // Lấy danh sách tất cả user có role là ROLE_MEMBER
-            List<User> allMembers = userService.findUserByRole(RoleEnum.ROLE_MEMBER); // Giả sử có phương thức này trong userService
-            System.out.println("All members loaded: " + (allMembers != null ? allMembers.size() : "null"));
-
-            // Lấy danh sách user có cùng teamId với người đăng nhập
-            List<User> membersInSameTeam = userService.findUsersByTeamId(teamId);
-            // Giả sử có phương thức này trong userService
-            System.out.println("Members in the same team loaded: " + (membersInSameTeam != null ? membersInSameTeam.size() : "null"));
-
-            // Thêm vào model
             model.addAttribute("tasks", tasks != null ? tasks : new ArrayList<>());
+            model.addAttribute("usersInSameTeam", usersInSameTeam != null ? usersInSameTeam : new ArrayList<>());
+            model.addAttribute("allUsersMembers", allUsersMembers != null ? allUsersMembers : new ArrayList<>());
             model.addAttribute("task", new Task());
-            model.addAttribute("allMembers", allMembers != null ? allMembers : new ArrayList<>());
-            model.addAttribute("membersInSameTeam", membersInSameTeam != null ? membersInSameTeam : new ArrayList<>());
             model.addAttribute("username", username);
-
         } catch (Exception e) {
             System.out.println("Error in dashboard_manager: " + e.getMessage());
-            e.printStackTrace();
             model.addAttribute("error", "Không thể tải dữ liệu: " + e.getMessage());
-            return "error";
+            model.addAttribute("tasks", new ArrayList<>());
+            model.addAttribute("usersInSameTeam", new ArrayList<>());
+            model.addAttribute("allUsersMembers", new ArrayList<>());
+            model.addAttribute("task", new Task());
+            model.addAttribute("username", "");
+            return "dashboard_manager";
         }
 
         return "dashboard_manager";
