@@ -1,7 +1,7 @@
 package fsa.miniproject.service;
 
 import fsa.miniproject.dto.*;
-import fsa.miniproject.entity.RoleEnum;
+import fsa.miniproject.enums.RoleEnum;
 import fsa.miniproject.entity.User;
 
 
@@ -13,5 +13,6 @@ public interface UserService {
     Optional<DetailUserDto> findDetailByEmail(String email);
     List<MemberUserDto> findUsersByRole(RoleEnum role);
     List<TeamUserDto> findUsersByTeamId(Integer teamId);
+    Optional<DetailUserDto> findDetailById(Integer id);
     Optional<User> findById(Integer id);
 }

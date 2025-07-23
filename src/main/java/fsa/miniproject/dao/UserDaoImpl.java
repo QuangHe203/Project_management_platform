@@ -3,7 +3,7 @@ package fsa.miniproject.dao;
 import fsa.miniproject.dto.DetailUserDto;
 import fsa.miniproject.dto.MemberUserDto;
 import fsa.miniproject.dto.TeamUserDto;
-import fsa.miniproject.entity.RoleEnum;
+import fsa.miniproject.enums.RoleEnum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -64,6 +64,21 @@ public class UserDaoImpl implements UserDao {
         return entityManager.createQuery(jpql, MemberUserDto.class)
                 .setParameter("role", role)
                 .getResultList();
+    }
+
+    @Override
+    public Optional<DetailUserDto> findDetailById(Integer accountId) {
+        String jpql = "SELECT new fsa.miniproject.dto.DetailUserDto(" +
+                "u.accountId, u.role, u.name, u.email, u.password, u.team.id) " +
+                "FROM User u " +
+                "LEFT JOIN u.team " +
+                "WHERE u.accountId = :accountId";
+
+        List<DetailUserDto> results = entityManager.createQuery(jpql, DetailUserDto.class)
+                .setParameter("accountId", accountId)
+                .getResultList();
+
+        return results.stream().findFirst();
     }
 
     @Override

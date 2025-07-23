@@ -1,5 +1,6 @@
 package fsa.miniproject.entity;
 
+import fsa.miniproject.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

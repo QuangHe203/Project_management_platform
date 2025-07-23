@@ -1,24 +1,32 @@
 package fsa.miniproject.service;
 
 import fsa.miniproject.dao.TaskDao;
-import fsa.miniproject.dto.TaskDto;
+import fsa.miniproject.dto.DetailTaskDto;
+import fsa.miniproject.dto.UpdateTaskDto;
 import fsa.miniproject.entity.Task;
-import fsa.miniproject.entity.TaskStatusEnum;
+import fsa.miniproject.entity.User;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 public class TaskServiceImpl implements TaskService {
+
     private final TaskDao taskDao;
 
     public TaskServiceImpl(TaskDao taskDao) {
         this.taskDao = taskDao;
     }
+
+    @Override
+    @Transactional
+    public Optional<DetailTaskDto> getById(Integer id) {
+        return taskDao.findDetailById(id);
+    }
+
 
     @Override
     @Transactional
@@ -36,63 +44,56 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public boolean updateTaskStatus(Integer taskId, TaskStatusEnum status) {
-        Optional<Task> optionalTask = taskDao.findById(taskId);
+    public Optional<Task> updateFromDto(UpdateTaskDto dto) {
+        Optional<Task> optionalTask = taskDao.findTaskById(dto.getTaskId());
+
+        if (!optionalTask.isPresent()) {
+            return Optional.empty();
+        }
+
+        Task task = optionalTask.get();
+
+        task.setTitle(dto.getTitle());
+        task.setContent(dto.getContent());
+        task.setStartDate(dto.getStartDate());
+        task.setEndDate(dto.getEndDate());
+
+        if (dto.getAssignee() != null) {
+            User assignee = new User();
+            assignee.setAccountId(dto.getAssignee());
+            task.setAssignee(assignee);
+        } else {
+            task.setAssignee(null);
+        }
+
+        taskDao.save(task);
+
+        return Optional.of(task);
+    }
+
+    @Override
+    public List<DetailTaskDto> getAllTasksWithDetails() {
+        return taskDao.findAllWithDetails();
+    }
+
+    @Override
+    public List<DetailTaskDto> getTasksByStatusWithDetails(String status) {
+        return taskDao.findByStatusWithDetails(status);
+    }
+
+    @Override
+    public List<DetailTaskDto> getTasksByTeamId(Integer teamId) {
+        return taskDao.findByTeamId(teamId); // Trả về danh sách Task Entity
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteTask(Integer id) {
+        Optional<Task> optionalTask = taskDao.findTaskById(id);
         if (optionalTask.isPresent()) {
-            Task task = optionalTask.get();
-            task.setStatus(status);
-            taskDao.save(task);
+            taskDao.deleteById(id);
             return true;
         }
         return false;
-    }
-
-    private TaskDto toDto(Task task) {
-        return new TaskDto(
-            task.getTaskId(),
-            task.getTitle(),
-            task.getContent(),
-            task.getStatus(),
-            task.getStartDate(),
-            task.getEndDate(),
-            task.getAssignee() != null ? task.getAssignee().getAccountId() : null,
-            task.getAssignee() != null ? task.getAssignee().getName() : null
-            // ,task.getProject() != null ? task.getProject().getProjectId() : null
-            // ,task.getProject() != null ? task.getProject().getName() : null
-        );
-    }
-
-    @Override
-    public List<TaskDto> getTasksByStatus(String status) {
-        List<Task> tasks = taskDao.findByStatus(status);
-        List<TaskDto> dtos = new ArrayList<>();
-        for (Task t : tasks) dtos.add(toDto(t));
-        return dtos;
-    }
-
-    @Override
-    public List<Task> getAllTasks() {
-        return taskDao.findAll();
-    }
-
-    @Override
-    public List<TaskDto> getAllTasksWithDetails() {
-        List<Task> tasks = taskDao.findAllWithDetails();
-        List<TaskDto> dtos = new ArrayList<>();
-        for (Task t : tasks) dtos.add(toDto(t));
-        return dtos;
-    }
-
-    @Override
-    public List<TaskDto> getTasksByStatusWithDetails(String status) {
-        List<Task> tasks = taskDao.findByStatusWithDetails(status);
-        List<TaskDto> dtos = new ArrayList<>();
-        for (Task t : tasks) dtos.add(toDto(t));
-        return dtos;
-    }
-
-    @Override
-    public List<Task> getTasksByTeamId(Integer teamId) {
-        return taskDao.findByTeamId(teamId);
     }
 }

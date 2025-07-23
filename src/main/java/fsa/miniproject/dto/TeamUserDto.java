@@ -1,6 +1,6 @@
 package fsa.miniproject.dto;
 
-import fsa.miniproject.entity.RoleEnum;
+import fsa.miniproject.enums.RoleEnum;
 import lombok.Data;
 
 @Data

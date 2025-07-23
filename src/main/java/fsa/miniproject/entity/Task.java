@@ -1,13 +1,12 @@
 package fsa.miniproject.entity;
 
+import fsa.miniproject.enums.TaskStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Optional;
-import java.util.Set;
 
 @Data
 @Entity
@@ -22,7 +21,7 @@ public class Task {
     @Column(columnDefinition = "NVARCHAR(255)")
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String content;
 
     @Enumerated(EnumType.STRING)

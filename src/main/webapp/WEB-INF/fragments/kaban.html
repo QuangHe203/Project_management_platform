@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+<!-- Fragment Kaban-->
+<div class="row mt-4" th:fragment="kaban">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Kanban Board</div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- BACKLOG -->
+                    <div class="col-md-3">
+                        <h5>Backlog</h5>
+                        <div th:if="${tasks != null}">
+                            <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'BACKLOG'}" class="card mb-2">
+                                <div class="card-body">
+                                    <h6 th:text="${task.title}">Tiêu đề</h6>
+                                    <p th:text="${task.content}">Nội dung</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DOING -->
+                    <div class="col-md-3">
+                        <h5>Doing</h5>
+                        <div th:if="${tasks != null}">
+                            <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'DOING'}" class="card mb-2">
+                                <div class="card-body">
+                                    <h6 th:text="${task.title}">Tiêu đề</h6>
+                                    <p th:text="${task.content}">Nội dung</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REVIEW -->
+                    <div class="col-md-3">
+                        <h5>Review</h5>
+                        <div th:if="${tasks != null}">
+                            <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'REVIEW'}" class="card mb-2">
+                                <div class="card-body">
+                                    <h6 th:text="${task.title}">Tiêu đề</h6>
+                                    <p th:text="${task.content}">Nội dung</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DONE -->
+                    <div class="col-md-3">
+                        <h5>Done</h5>
+                        <div th:if="${tasks != null}">
+                            <div th:each="task : ${tasks}" th:if="${task.status != null and task.status.name() == 'DONE'}" class="card mb-2">
+                                <div class="card-body">
+                                    <h6 th:text="${task.title}">Tiêu đề</h6>
+                                    <p th:text="${task.content}">Nội dung</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- .row -->
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

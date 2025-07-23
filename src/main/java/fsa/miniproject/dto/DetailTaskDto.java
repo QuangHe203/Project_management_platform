@@ -1,28 +1,30 @@
 package fsa.miniproject.dto;
 
-import fsa.miniproject.entity.TaskStatusEnum;
+import fsa.miniproject.enums.RoleEnum;
+import fsa.miniproject.enums.TaskStatusEnum;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
-public class TaskDto {
+public class DetailTaskDto {
     private Integer taskId;
     private String title;
     private String content;
     private TaskStatusEnum status;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String assigneeName;
     private Integer assigneeId;
+    private String assigneeName;
+    private RoleEnum assigneeRole;
 //    private String projectName;
 //    private Integer projectId;
 
-    public TaskDto() {}
+    public DetailTaskDto() {}
 
-    public TaskDto(Integer taskId, String title, String content, TaskStatusEnum status,
-                   LocalDate startDate, LocalDate endDate,
-                   Integer assigneeId, String assigneeName) {
+    public DetailTaskDto(Integer taskId, String title, String content, TaskStatusEnum status,
+                         LocalDate startDate, LocalDate endDate,
+                         Integer assigneeId, String assigneeName, RoleEnum assigneeRole) {
         this.taskId = taskId;
         this.title = title;
         this.content = content;
@@ -31,6 +33,7 @@ public class TaskDto {
         this.endDate = endDate;
         this.assigneeId = assigneeId;
         this.assigneeName = assigneeName;
+        this.assigneeRole = assigneeRole;
     }
 
     public Integer getTaskId() {
@@ -81,14 +84,6 @@ public class TaskDto {
         this.endDate = endDate;
     }
 
-    public String getAssigneeName() {
-        return assigneeName;
-    }
-
-    public void setAssigneeName(String assigneeName) {
-        this.assigneeName = assigneeName;
-    }
-
     public Integer getAssigneeId() {
         return assigneeId;
     }
@@ -97,5 +92,8 @@ public class TaskDto {
         this.assigneeId = assigneeId;
     }
 
+    public void setAssignee(Integer integer) {
+
+    }
 }
 

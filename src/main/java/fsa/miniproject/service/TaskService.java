@@ -1,26 +1,24 @@
 package fsa.miniproject.service;
 
-import fsa.miniproject.dao.TaskDao;
+import fsa.miniproject.dto.UpdateTaskDto;
 import fsa.miniproject.entity.Task;
-import fsa.miniproject.entity.TaskStatusEnum;
-import fsa.miniproject.dto.TaskDto;
+import fsa.miniproject.dto.DetailTaskDto;
 
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public interface TaskService {
+    Optional<DetailTaskDto> getById(Integer id);
     boolean addTask(Task task);
-    List<Task> getAllTasks();
     boolean updateTask(Task task);
-    boolean updateTaskStatus(Integer taskId, TaskStatusEnum status);
-    List<TaskDto> getTasksByStatus(String status);
-    List<TaskDto> getAllTasksWithDetails();
-    List<TaskDto> getTasksByStatusWithDetails(String status);
-    List<Task> getTasksByTeamId(Integer teamId);
+    Optional<Task> updateFromDto(UpdateTaskDto dto);
+    List<DetailTaskDto> getAllTasksWithDetails();
+    List<DetailTaskDto> getTasksByStatusWithDetails(String status);
+    List<DetailTaskDto> getTasksByTeamId(Integer teamId);
+    boolean deleteTask(Integer id);
 }

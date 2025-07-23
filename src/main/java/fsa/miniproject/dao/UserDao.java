@@ -3,7 +3,7 @@ package fsa.miniproject.dao;
 import fsa.miniproject.dto.DetailUserDto;
 import fsa.miniproject.dto.MemberUserDto;
 import fsa.miniproject.dto.TeamUserDto;
-import fsa.miniproject.entity.RoleEnum;
+import fsa.miniproject.enums.RoleEnum;
 import fsa.miniproject.entity.User;
 
 import java.util.List;
@@ -15,5 +15,6 @@ public interface UserDao {
     Optional<DetailUserDto> findDetailByEmail(String email);
     List<MemberUserDto> findUsersByRole(RoleEnum role);
     Optional<User> findById(Integer id);
+    Optional<DetailUserDto> findDetailById(Integer id);
     List<TeamUserDto> findUsersByTeamId(Integer teamId);
 }

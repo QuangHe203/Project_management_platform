@@ -1,9 +1,11 @@
 package fsa.miniproject.controller;
 
-import fsa.miniproject.entity.RoleEnum;
-import fsa.miniproject.dto.TaskDto;
+import fsa.miniproject.dto.DetailUserDto;
+import fsa.miniproject.dto.UpdateTaskDto;
+import fsa.miniproject.enums.RoleEnum;
+import fsa.miniproject.dto.DetailTaskDto;
 import fsa.miniproject.entity.Task;
-import fsa.miniproject.entity.TaskStatusEnum;
+import fsa.miniproject.enums.TaskStatusEnum;
 import fsa.miniproject.entity.User;
 import fsa.miniproject.service.TaskService;
 import fsa.miniproject.service.UserService;
@@ -13,9 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.beans.PropertyEditorSupport;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class TaskController {
@@ -27,43 +31,18 @@ public class TaskController {
         this.userService = userService;
     }
 
-//    @InitBinder
-//    public void initBinder(WebDataBinder binder) {
-//        System.out.println("=== InitBinder được gọi ===");
-//        binder.registerCustomEditor(User.class, "assignee", new PropertyEditorSupport() {
-//            @Override
-//            public void setAsText(String text) {
-//                System.out.println("=== Binding assignee với ID: " + text + " ===");
-//                Integer userId = Integer.valueOf(text);
-//                User user = userService.findById(userId).orElse(null);
-//                setValue(user);
-//            }
-//        });
-//    }
-
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        System.out.println("=== InitBinder được gọi ===");
         binder.registerCustomEditor(User.class, "assignee", new PropertyEditorSupport() {
             @Override
             public void setAsText(String text) {
-                System.out.println("=== Binding assignee với ID: " + text + " ===");
-                if (text == null || text.trim().isEmpty()) {
-                    setValue(null); // Gán null nếu người dùng không chọn assignee
-                    return;
-                }
-
-                try {
-                    Integer userId = Integer.valueOf(text);
-                    User user = userService.findById(userId).orElse(null);
-                    setValue(user);
-                } catch (NumberFormatException e) {
-                    System.err.println("Không thể parse userId từ text: " + text);
-                    setValue(null); // Hoặc throw nếu muốn fail hard
-                }
+                Integer userId = Integer.valueOf(text);
+                User user = userService.findById(userId).orElse(null);
+                setValue(user);
             }
         });
     }
+
 
     @PostMapping("/addTask")
     public String addTask(@Valid @ModelAttribute("task") Task task,
@@ -75,7 +54,6 @@ public class TaskController {
         System.out.println("Status: " + task.getStatus());
         System.out.println("Has errors: " + result.hasErrors());
 
-        // ⚠️ Nếu không có giá trị status từ form (ví dụ bị thiếu input hidden), gán mặc định
         if (task.getStatus() == null) {
             task.setStatus(TaskStatusEnum.BACKLOG);
         }
@@ -98,6 +76,32 @@ public class TaskController {
         return "redirect:/dashboard_manager";
     }
 
+    @PostMapping("/updateTask/{taskId}")
+    public String updateTask(@PathVariable("taskId") Integer taskId,
+                             @Valid @ModelAttribute("task") UpdateTaskDto task,
+                             BindingResult result,
+                             Model model) {
+        try {
+            taskService.updateFromDto(task);
+        } catch (Exception e) {
+            model.addAttribute("membersInSameTeam", userService.findUsersByRole(RoleEnum.ROLE_MEMBER));
+            model.addAttribute("task", task);
+            model.addAttribute("error", "Không thể sửa tác vụ: " + e.getMessage());
+            return "dashboard_manager";
+        }
+        return "redirect:/dashboard_manager";
+    }
+
+    @GetMapping("/getTask/{taskId}")
+    @ResponseBody
+    public DetailTaskDto getTaskById(@PathVariable("taskId") Integer taskId) {
+        Optional<DetailTaskDto> taskDto = taskService.getById(taskId);
+        if (taskDto.isPresent()) {
+            return taskDto.get();
+        } else {
+            throw new IllegalArgumentException("Task not found with ID: " + taskId); // Nếu không tìm thấy task
+        }
+    }
 
     @PostMapping("/updateTask")
     public String updateTask(@Valid @ModelAttribute("task") Task task,
@@ -112,25 +116,29 @@ public class TaskController {
         return "redirect:/dashboard_manager";
     }
 
-    @PostMapping("/updateTaskStatus")
-    public String updateTaskStatus(@RequestParam Integer taskId, @RequestParam TaskStatusEnum status) {
-        boolean success = taskService.updateTaskStatus(taskId, status);
-        return "redirect:/dashboard_manager" + (success ? "" : "?error=TaskNotFound");
-    }
-
     @GetMapping("/tasks/byStatus")
     public String getTasksByStatus(@RequestParam String status, Model model) {
-        // 👉 Dùng DTO để tránh lazy/concurrent modification
-        List<TaskDto> tasks = taskService.getTasksByStatusWithDetails(status);
+        List<DetailTaskDto> tasks = taskService.getTasksByStatusWithDetails(status);
 
         model.addAttribute("tasks", tasks);
         model.addAttribute("users", userService.findUsersByRole(RoleEnum.ROLE_MEMBER));
-        model.addAttribute("task", new TaskDto());
+        model.addAttribute("task", new DetailTaskDto());
 
         model.addAttribute("todoTasks", taskService.getTasksByStatusWithDetails("TODO"));
         model.addAttribute("inProgressTasks", taskService.getTasksByStatusWithDetails("IN_PROGRESS"));
         model.addAttribute("doneTasks", taskService.getTasksByStatusWithDetails("DONE"));
 
         return "dashboard_manager";
+    }
+
+    @PostMapping("/deleteTask")
+    public String deleteTask(@RequestParam("taskId") Integer taskId, RedirectAttributes redirectAttributes) {
+        boolean deleted = taskService.deleteTask(taskId);
+        if (deleted) {
+            redirectAttributes.addFlashAttribute("success", "Xoá tác vụ thành công.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Tác vụ không tồn tại hoặc đã bị xoá.");
+        }
+        return "redirect:/dashboard_manager"; // hoặc trang danh sách task của bạn
     }
 }

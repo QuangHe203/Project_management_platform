@@ -1,29 +1,24 @@
 package fsa.miniproject.controller;
 
-import fsa.miniproject.dto.MemberUserDto;
-import fsa.miniproject.dto.RegisterUserDto;
-import fsa.miniproject.dto.DetailUserDto;
-import fsa.miniproject.dto.TeamUserDto;
-import fsa.miniproject.entity.RoleEnum;
+import fsa.miniproject.dto.*;
+import fsa.miniproject.entity.User;
+import fsa.miniproject.enums.RoleEnum;
 import fsa.miniproject.entity.Task;
 import fsa.miniproject.service.TaskService;
 import fsa.miniproject.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 public class UserController {
@@ -110,14 +105,12 @@ public class UserController {
                 model.addAttribute("username", username);
                 return "dashboard_manager";
             }
-            // Lấy danh sách task của team hiện tại
-            List<Task> tasks = taskService.getTasksByTeamId(teamId);
-            // Lấy danh sách user của team hiện tại
+
+            List<DetailTaskDto> tasks = taskService.getTasksByTeamId(teamId);
             List<TeamUserDto> usersInSameTeam = userService.findUsersByTeamId(teamId);
             for (TeamUserDto user : usersInSameTeam) {
                 System.out.println("User in team: " + user.getName() + ", Email: " + user.getEmail());
             }
-            // Lấy danh sách user có vai trò là member
             List<MemberUserDto> allUsersMembers = userService.findUsersByRole(RoleEnum.ROLE_MEMBER);
 
             model.addAttribute("tasks", tasks != null ? tasks : new ArrayList<>());
@@ -184,5 +177,22 @@ public class UserController {
             model.addAttribute("error", "Đã xảy ra lỗi: " + ex.getMessage());
             return "login";
         }
+    }
+
+    @GetMapping("/users/search/{userId}")
+    @ResponseBody
+    public ResponseEntity<?> searchUserById(@PathVariable("userId") Integer userId) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User không tồn tại");
+        }
+
+        User user = userOpt.get();
+        Map<String, Object> result = new HashMap<>();
+        result.put("name", user.getName());
+        result.put("email", user.getEmail());
+        result.put("teamName", user.getTeam() != null ? user.getTeam().getName() : null);
+
+        return ResponseEntity.ok(result);
     }
 }

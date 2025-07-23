@@ -2,7 +2,7 @@ package fsa.miniproject.service;
 
 import fsa.miniproject.dao.UserDao;
 import fsa.miniproject.dto.*;
-import fsa.miniproject.entity.RoleEnum;
+import fsa.miniproject.enums.RoleEnum;
 import fsa.miniproject.entity.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -64,6 +64,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<DetailUserDto> findDetailByEmail(String email) {
         return userDao.findDetailByEmail(email);
+    }
+
+    @Override
+    public Optional<DetailUserDto> findDetailById(Integer id) {
+        return userDao.findDetailById(id);
     }
 
     @Override
